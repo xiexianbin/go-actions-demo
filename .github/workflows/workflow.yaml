@@ -6,6 +6,7 @@ on:
       - main
       - dev
       - bug/**
+      - bugfix/**
       - feature/**
     paths-ignore:
       - '**.md'
