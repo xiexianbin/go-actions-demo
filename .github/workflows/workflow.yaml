@@ -1,11 +1,18 @@
 name: workflow
 on:
   workflow_dispatch:
+    inputs:
+      reason:
+        description: 'run action reason'
+        required: false
+        type: string
+        default: 'manually test'
   push:
     branches:
       - main
       - dev
       - bug/**
+      - fix/**
       - bugfix/**
       - feature/**
     paths-ignore:
