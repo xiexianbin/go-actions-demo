@@ -1,5 +1,12 @@
 name: Release new action version
 on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'run release action reason'
+        required: false
+        type: string
+        default: 'manually test'
   push:
     tags:
       - "v*.*.*"
