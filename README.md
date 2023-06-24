@@ -16,8 +16,9 @@ git push origin --tags
 ```
 
 - download
+
 ```
-curl -Lfs -o main https://github.com/xiexianbin/go-actions-demo/releases/latest/download/main-{linux|darwin|windows}
+curl -Lfs -o main https://github.com/xiexianbin/go-actions-demo/releases/latest/download/main-{linux|darwin|windows}-{amd64|arm64}
 chmod +x main
 ./main
 ```
