@@ -19,17 +19,24 @@ GOCMD   ?= go
 GOBUILD ?= $(GOCMD) build -v
 GOCLEAN ?= $(GOCMD) clean
 GOTEST  ?= $(GOCMD) test -v -p 20
+
+linux-amd64: GOARGS = GOOS=linux GOARCH=amd64
+linux-arm64: GOARGS = GOOS=linux GOARCH=arm64
+linux-ppc64le: GOARGS = GOOS=linux GOARCH=ppc64le
+linux-s390x: GOARGS = GOOS=linux GOARCH=s390x
+darwin-amd64: GOARGS = GOOS=darwin GOARCH=amd64
+darwin-arm64: GOARGS = GOOS=darwin GOARCH=arm64
+windows-amd64: GOARGS = GOOS=windows GOARCH=amd64
+
 BINARY_NAME  ?= main
-BINARY_LINUX ?= $(BINARY_NAME)-linux
-BINARY_MAC   ?= $(BINARY_NAME)-darwin
-BINARY_WIN   ?= $(BINARY_NAME)-windows
 IMG          ?= xiexianbin/go-actions-demo:latest
 
 ifeq ($(RELEASE_TAG),true)
 VERSION        := $(GIT_TAG)
 endif
 
-$(info GIT_COMMIT=$(GIT_COMMIT) GIT_BRANCH=$(GIT_BRANCH) GIT_TAG=$(GIT_TAG) GIT_TREE_STATE=$(GIT_TREE_STATE) RELEASE_TAG=$(RELEASE_TAG) DEV_BRANCH=$(DEV_BRANCH) VERSION=$(VERSION))
+# $(info GIT_COMMIT=$(GIT_COMMIT) GIT_BRANCH=$(GIT_BRANCH) GIT_TAG=$(GIT_TAG) GIT_TREE_STATE=$(GIT_TREE_STATE) RELEASE_TAG=$(RELEASE_TAG) DEV_BRANCH=$(DEV_BRANCH) VERSION=$(VERSION))
+# $(info MAKEFILE_LIST=${MAKEFILE_LIST})
 
 # -X github.com/xiexianbin/go-actions-demo.version=$(VERSION)
 override LDFLAGS += \
@@ -42,37 +49,55 @@ ifneq ($(GIT_TAG),)
 override LDFLAGS += -X main.gitTag=${GIT_TAG}
 endif
 
+SUB_BUILD_CMD ?= $(GOBUILD)  -gcflags '${GCFLAGS}' -ldflags '${LDFLAGS}  -extldflags -static'
+
 .PHONY: help
-help:  ## Show this help.
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {sub("\\\\n",sprintf("\n%22c"," "), $$2);printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+help:  ## Show this help
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z0-9_-]+:.*?## / {sub("\\\\n",sprintf("\n%22c"," "), $$2);printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 .PHONY: all
-all: clean test build build-linux build-mac build-windows  ## Build all
+all: clean test build linux-amd64 linux-arm64 linux-ppc64le linux-s390x darwin-amd64 darwin-arm64 windows-amd64  ## Build all
 
 .PHONY: test
-test:  ## run test
+test:  ## Run test
 	$(GOTEST) ./...
 
 .PHONY: clean
-clean: ## run clean bin files
+clean: ## Run clean bin files
 	$(GOCLEAN)
 	rm -f bin/*
 
 .PHONY: build
-build:  ## build for current os
-	$(GOBUILD) -gcflags '${GCFLAGS}' -ldflags '${LDFLAGS}  -extldflags -static' -o bin/$(BINARY_NAME)
+build:  ## Build for current os
+	${SUB_BUILD_CMD} -o bin/$(BINARY_NAME)
 
-.PHONY: build-linux
-build-linux:  ## build linux amd64
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -gcflags '${GCFLAGS}' -ldflags '${LDFLAGS}  -extldflags -static' -o bin/$(BINARY_LINUX)
+.PHONY: linux-amd64
+linux-amd64:  ## Build linux amd64
+	CGO_ENABLED=0 ${GOARGS} ${SUB_BUILD_CMD} -o bin/${BINARY_NAME}-$@
 
-.PHONY: build-mac
-build-mac:  ## build mac amd64
-	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 $(GOBUILD) -gcflags '${GCFLAGS}' -ldflags '${LDFLAGS}  -extldflags -static' -o bin/$(BINARY_MAC)
+.PHONY: linux-arm64
+linux-arm64:  ## Build linux arm64
+	CGO_ENABLED=0 ${GOARGS} ${SUB_BUILD_CMD} -o bin/${BINARY_NAME}-$@
 
-.PHONY: build-windows
-build-windows:  ## build windows amd64
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -gcflags '${GCFLAGS}' -ldflags '${LDFLAGS}  -extldflags -static' -o bin/$(BINARY_WIN)
+.PHONY: linux-ppc64le
+linux-ppc64le:  ## Build linux ppc64le
+	CGO_ENABLED=0 ${GOARGS} ${SUB_BUILD_CMD} -o bin/${BINARY_NAME}-$@
+
+.PHONY: linux-s390x
+linux-s390x:  ## Build linux s390x
+	CGO_ENABLED=0 ${GOARGS} ${SUB_BUILD_CMD} -o bin/${BINARY_NAME}-$@
+
+.PHONY: darwin-amd64
+darwin-amd64:  ## Build darwin amd64
+	CGO_ENABLED=0 ${GOARGS} ${SUB_BUILD_CMD} -o bin/${BINARY_NAME}-$@
+
+.PHONY: darwin-arm64
+darwin-arm64:  ## Build darwin arm64
+	CGO_ENABLED=0 ${GOARGS} ${SUB_BUILD_CMD} -o bin/${BINARY_NAME}-$@
+
+.PHONY: windows-amd64
+windows-amd64:  ## Build windows amd64
+	CGO_ENABLED=0 ${GOARGS} ${SUB_BUILD_CMD} -o bin/${BINARY_NAME}-$@.exe
 
 .PHONY: docker-build
 docker-build: test  ## Build docker image

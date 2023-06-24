@@ -49,6 +49,10 @@ jobs:
           files: |
             Release.txt
             LICENSE
-            bin/main-linux
-            bin/main-darwin
-            bin/main-windows
+            bin/main-linux-amd64
+            bin/main-linux-arm64
+            bin/main-linux-ppc64le
+            bin/main-linux-s390x
+            bin/main-darwin-amd64
+            bin/main-darwin-arm64
+            bin/main-windows-amd64.exe
