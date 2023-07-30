@@ -60,7 +60,7 @@ all: clean test build linux-amd64 linux-arm64 linux-ppc64le linux-s390x darwin-a
 
 .PHONY: test
 test:  ## Run test
-	$(GOTEST) ./...
+	$(GOTEST) -v ./...
 
 .PHONY: clean
 clean: ## Run clean bin files

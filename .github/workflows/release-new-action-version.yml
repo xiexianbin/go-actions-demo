@@ -19,11 +19,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: Release
-        uses: softprops/action-gh-release@v1
-
-      - name: Checkout
         uses: actions/checkout@v3
 
       - name: Setup Go
@@ -47,8 +42,6 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            Release.txt
-            LICENSE
             bin/main-linux-amd64
             bin/main-linux-arm64
             bin/main-linux-ppc64le
@@ -56,3 +49,5 @@ jobs:
             bin/main-darwin-amd64
             bin/main-darwin-arm64
             bin/main-windows-amd64.exe
+            Release.txt
+            LICENSE

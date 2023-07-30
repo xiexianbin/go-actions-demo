@@ -11,8 +11,9 @@ golang github actions demo/template
 - release
 
 ```
-git tag v0.1.0
-git push origin --tags
+git tag -s v0.1.0
+git push origin v0.1.0
+# git push origin --tags
 ```
 
 - download
